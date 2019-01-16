@@ -57,7 +57,7 @@ class Input extends React.Component {
   float = () => {
     const {floatAnimationValue} = this;
     Animated.timing(floatAnimationValue, {
-      toValue: (this.isFocused()|| !this.isEmpty()) ? 4 : 0,
+      toValue: (this.isFocused()|| this.props.value !== '') ? 4 : 0,
       duration: 200,
     }).start();
   };
