@@ -16,6 +16,9 @@ import { fonts, withTheme, ViewPropTypes, TextPropTypes } from '../config';
 import Icon from '../icons/Icon';
 
 class Input extends React.Component {
+
+  floatAnimationValue = new Animated.Value(this.props.value === '' ? 0 : 3);
+
   shakeAnimationValue = new Animated.Value(0);
 
   focus() {
@@ -34,6 +37,10 @@ class Input extends React.Component {
     return this.input.isFocused();
   }
 
+  isEmpty() {
+    this.props.value === '';
+  }
+
   shake = () => {
     const { shakeAnimationValue } = this;
 
@@ -44,6 +51,14 @@ class Input extends React.Component {
       duration: 375,
       toValue: 3,
       ease: Easing.bounce,
+    }).start();
+  };
+
+  float = () => {
+    const {floatAnimationValue} = this;
+    Animated.timing(floatAnimationValue, {
+      toValue: (this.isFocused()|| !this.isEmpty()) ? 4 : 0,
+      duration: 200,
     }).start();
   };
 
@@ -72,67 +87,91 @@ class Input extends React.Component {
       outputRange: [0, -15, 0, 15, 0, -15, 0],
     });
 
+    const floatLabelStyle = theme => ({
+      position: 'absolute',
+      left: 0,
+      marginLeft: 10,
+      bottom: this.floatAnimationValue.interpolate({
+        inputRange: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4],
+        outputRange: [-12, -9, -6, -3, 0, 3, 6, 9, 12]
+      }),
+      fontSize: this.floatAnimationValue.interpolate({
+        inputRange: [0, 4],
+        outputRange: [18, 14],
+      }),
+      color: this.floatAnimationValue.interpolate({
+        inputRange: [0, 4],
+        outputRange: [theme.colors.grey3, theme.colors.grey0],
+      }),
+    });
+
     return (
       <View style={StyleSheet.flatten([{ width: '90%' }, containerStyle])}>
-        {!!label && (
-          <Text
-            {...labelProps}
-            style={StyleSheet.flatten([styles.label(theme), labelStyle])}
-          >
-            {label}
-          </Text>
-        )}
 
-        <Animated.View
-          style={StyleSheet.flatten([
-            styles.inputContainer(theme),
-            inputContainerStyle,
-            { transform: [{ translateX }] },
+      <Animated.View
+    style={StyleSheet.flatten([
+          styles.inputContainer(theme),
+          inputContainerStyle,
+          { transform: [{ translateX }] },
+        ])}
+      >
+      {leftIcon && (
+      <View
+    style={StyleSheet.flatten([
+          styles.iconContainer,
+          leftIconContainerStyle,
+        ])}
+      >
+      {renderNode(Icon, leftIcon)}
+      </View>
+  )}
+
+    {label && (
+    <View>
+    <Animated.Text
+      {...labelProps}
+      style={StyleSheet.flatten([
+            floatLabelStyle(theme),
+            labelStyle,
           ])}
         >
-          {leftIcon && (
-            <View
-              style={StyleSheet.flatten([
-                styles.iconContainer,
-                leftIconContainerStyle,
-              ])}
-            >
-              {renderNode(Icon, leftIcon)}
-            </View>
-          )}
+        {label}
+        </Animated.Text>
+        </View>
+    )}
 
-          <InputComponent
-            underlineColorAndroid="transparent"
-            {...attributes}
-            ref={ref => (this.input = ref)}
-            style={StyleSheet.flatten([styles.input, inputStyle])}
-          />
+  <InputComponent
+    underlineColorAndroid="transparent"
+    {...attributes}
+    ref={ref => (this.input = ref)}
+    style={StyleSheet.flatten([styles.input, inputStyle])}
+    />
 
-          {rightIcon && (
-            <View
-              style={StyleSheet.flatten([
-                styles.iconContainer,
-                rightIconContainerStyle,
-              ])}
-            >
-              {renderNode(Icon, rightIcon)}
-            </View>
-          )}
-        </Animated.View>
+    {rightIcon && (
+    <View
+      style={StyleSheet.flatten([
+            styles.iconContainer,
+            rightIconContainerStyle,
+          ])}
+        >
+        {renderNode(Icon, rightIcon)}
+        </View>
+    )}
+  </Animated.View>
 
-        {!!errorMessage && (
-          <Text
-            {...errorProps}
-            style={StyleSheet.flatten([
-              styles.error(theme),
-              errorStyle && errorStyle,
-            ])}
-          >
-            {errorMessage}
-          </Text>
-        )}
-      </View>
-    );
+    {!!errorMessage && (
+    <Text
+      {...errorProps}
+      style={StyleSheet.flatten([
+            styles.error(theme),
+            errorStyle && errorStyle,
+          ])}
+        >
+        {errorMessage}
+        </Text>
+    )}
+  </View>
+  );
   }
 }
 
@@ -150,6 +189,7 @@ Input.propTypes = {
   errorStyle: TextPropTypes.style,
   errorMessage: PropTypes.string,
   label: PropTypes.string,
+  float: PropTypes.any,
   labelStyle: TextPropTypes.style,
   labelProps: PropTypes.object,
   theme: PropTypes.object,
@@ -160,7 +200,7 @@ const styles = {
     flexDirection: 'row',
     borderBottomWidth: 1,
     alignItems: 'center',
-    borderColor: theme.colors.grey3,
+    borderColor: theme.colors.grey5,
   }),
   iconContainer: {
     height: 40,
@@ -180,18 +220,6 @@ const styles = {
     margin: 5,
     fontSize: 12,
     color: theme.colors.error,
-  }),
-  label: theme => ({
-    fontSize: 16,
-    color: theme.colors.grey3,
-    ...Platform.select({
-      ios: {
-        fontWeight: 'bold',
-      },
-      android: {
-        ...fonts.android.bold,
-      },
-    }),
   }),
 };
 
