@@ -57,10 +57,16 @@ class Input extends React.Component {
   float = () => {
     const {floatAnimationValue} = this;
     Animated.timing(floatAnimationValue, {
-      toValue: (this.isFocused()|| this.props.value !== '') ? 4 : 0,
+      toValue: (this.isFocused() || this.props.value !== '') ? 4 : 0,
       duration: 200,
     }).start();
   };
+
+  componentDidUpdate(){
+    if(!this.isEmpty()) {
+      this.float();
+    }
+  }
 
   render() {
     const {
@@ -104,7 +110,6 @@ class Input extends React.Component {
         outputRange: [theme.colors.grey3, theme.colors.grey0],
       }),
     });
-
     return (
       <View style={StyleSheet.flatten([{ width: '90%' }, containerStyle])}>
 
