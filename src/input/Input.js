@@ -58,7 +58,7 @@ class Input extends React.Component {
     const {floatAnimationValue} = this;
     Animated.timing(floatAnimationValue, {
       toValue: (this.isFocused() || this.props.value !== '') ? 4 : 0,
-      duration: 200,
+      duration: 275,
     }).start();
   };
 
@@ -98,12 +98,16 @@ class Input extends React.Component {
       left: 0,
       marginLeft: 10,
       bottom: this.floatAnimationValue.interpolate({
-        inputRange: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4],
-        outputRange: [-12, -9, -6, -3, 0, 3, 6, 9, 12]
+        inputRange: [0, 4],
+        outputRange: [-12,12]
+      }),
+      left: this.floatAnimationValue.interpolate({
+        inputRange: [0,0.5,1,1.5,2,2.5,3,3.5,4],
+        outputRange: [0,7,15,25,17.5,10,-5,-15,-30]
       }),
       fontSize: this.floatAnimationValue.interpolate({
         inputRange: [0, 4],
-        outputRange: [18, 14],
+        outputRange: [18, 12],
       }),
       color: this.floatAnimationValue.interpolate({
         inputRange: [0, 4],
